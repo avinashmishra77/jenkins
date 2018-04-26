@@ -1,0 +1,49 @@
+# This Dockerfile is used to build a custom Jenkins Image
+# 
+# Jenkins Prerequisites
+# 1GB+ of RAM, 50GB+ of drive space, Java 8 or greater
+# Running from with apache
+# Default Jenkins home directory: /var/jenkins_home
+
+
+# Base Image
+#FROM openjdk:8u121-jdk-alpine
+FROM openjdk:8-jdk-alpine
+
+# Apply latest updates 
+RUN apk update 
+RUN apk add --no-cache bash apache2 apache2-utils openrc ttf-dejavu
+
+# 
+RUN mkdir -p /run/apache2
+
+# Expose ports
+EXPOSE 80 443 50000
+
+# Copy the latest jenkins.war file
+WORKDIR /tmp/
+RUN wget http://mirrors.jenkins.io/war-stable/latest/jenkins.war
+#COPY *.war /tmp/
+
+# Jenkins Arguments required to install and configure Jenkins
+ARG user=jenkins
+ARG group=jenkins
+ARG uid=1000
+ARG gid=1000
+ARG http_port=8080
+ARG agent_port=50000
+
+ENV JENKINS_HOME /var/jenkins_home
+ENV JENKINS_SLAVE_AGENT_PORT ${agent_port}
+
+# Create Jenkins user under which Jenkins is going to run
+RUN addgroup -g ${gid} ${group} \
+&& adduser -h "$JENKINS_HOME" -u ${uid} -G ${group} -s /bin/bash -D ${user} \
+&& chown ${user}:${user} /tmp/*.war
+
+# Install the jenkins.war file
+#WORKDIR /tmp/
+ENTRYPOINT ["/bin/bash", "-c", "java -jar jenkins.war"]
+
+
+
