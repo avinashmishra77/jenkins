@@ -1,0 +1,90 @@
+# This Dockerfile is used to build a custom Jenkins Image
+# 
+# Jenkins Prerequisites
+# 1GB+ of RAM, 50GB+ of drive space, Java 8 or greater: Jenkins does not work with Java 9
+# 
+# Running from with apache
+# Default Jenkins home directory: /var/jenkins_home
+
+# Base OS Image
+FROM ubuntu:18.04
+
+# 
+MAINTAINER Avi
+
+# Update the list of available packages and upgrade these package to newer versions
+RUN apt-get update -y && apt-get upgrade -y 
+
+# Install software to allow independent vendor sources, particularly add-apt-repository
+RUN apt-get install software-properties-common -y 
+
+# Going to use Oracle JDK, add PPA repostitory that contains Oracle Java
+RUN add-apt-repository ppa:webupd8team/java
+RUN apt-get update -y
+
+# Install latest updates
+RUN apt-get install wget -y
+RUN apt-get install vim -y
+
+# The java installer requires you to accept license before installation begins
+RUN echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 select true" | debconf-set-selections
+RUN echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 seen true" | debconf-set-selections
+
+# Finally install Oracle Java 8
+RUN apt-get install oracle-java8-installer -y
+
+# Download the latest jenkins.war file to the temp directory
+WORKDIR /tmp
+RUN wget http://mirrors.jenkins.io/war-stable/latest/jenkins.war
+
+# Set required Environment variable tobe used
+ENV JAVA_HOME /usr/lib/jvm/java-8-oracle/
+
+# Jenkins Arguments required to install and configure Jenkins
+ARG user=jenkins
+ARG group=jenkins
+ARG uid=1000
+ARG gid=1000
+ARG http_port=8080
+ARG agent_port=50000
+
+ENV JENKINS_HOME /var/jenkins_home
+ENV JENKINS_SLAVE_AGENT_PORT ${agent_port}
+
+# Create Jenkins user under which Jenkins is going to run
+#RUN groupadd -g ${gid} ${group} \
+#&& useradd -h "$JENKINS_HOME" -u ${uid} -G ${group} -s /bin/bash -D ${user} \
+#&& chown ${user}:${user} /tmp/*.war
+
+RUN groupadd -g ${gid} ${group}
+RUN useradd ${user} -u ${uid} -g ${group} -s /bin/bash 
+RUN chown ${user}:${user} /tmp/*.war
+
+# Set required Environment variable tobe used
+ENV JAVA_HOME /usr/lib/jvm/java-8-oracle/
+
+# Jenkins Arguments required to install and configure Jenkins
+ARG user=jenkins
+ARG group=jenkins
+ARG uid=1000
+ARG gid=1000
+ARG http_port=8080
+ARG agent_port=50000
+
+ENV JENKINS_HOME /var/jenkins_home
+ENV JENKINS_SLAVE_AGENT_PORT ${agent_port}
+
+
+# Installing apache ant to use with Jenkins
+RUN apt-get install ant -y
+ENV ANT_HOME /usr/bin/ant
+
+# Clean local repository from retrieved packages.
+RUN apt-get clean
+
+# This results in a single layer image
+#FROM scratch
+
+# Install jenkins.war file
+ENTRYPOINT ["/bin/bash", "-c", "java -jar jenkins.war"]
+

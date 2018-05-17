@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="permarcsui" basedir="." default="zip">
+    <echo>Building PerMarcs WAR file (permarcsui.war) </echo>
+    <description>
+    	PerMarcs build WAR file (permarscui.war)
+    </description>
+
+    <target name="delete">
+      <echo>Deleting previous WAR file </echo>
+      <delete file="permarcsui.war" />
+    </target> 
+
+<!--
+    <target name="copy" depends="delete">
+      <echo>Copying SVN code to build directory</echo>
+      <copy todir=".">
+        <fileset dir="../../" excludes="**/ant/**" />
+      </copy>
+    </target>
+-->
+
+    <target name="zip" depends="delete">
+      <echo>Creating PerMarcs WAR file</echo>
+      <tar destfile="permarcsui.war" compression="none" basedir="../../" excludes="**build_permarcsui_ear.xml** , **build_permarcsui_ear.xml**, **ant/**" />
+    </target>
+
+</project>

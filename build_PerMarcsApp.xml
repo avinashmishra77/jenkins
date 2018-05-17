@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="PerMarcsApp" basedir="." default="zip">
+    
+    <echo>Building PerMarcsApp</echo>
+    <description>
+    	PerMarcs build EAR file (permarscui.war)
+    </description>
+
+    <target name="delete_permarcsapp">
+      <echo>Deleting previous PerMarcsApp build</echo>
+      <!-- <delete dir="PerMarcsApp" /> -->
+      <delete file="PerMarcsApp.ear" />
+    </target> 
+
+    <target name="create_permarcsapp" depends="delete_permarcsapp">
+      <echo>Creating new PerMarcsApp build</echo>
+      <!-- <mkdir dir="PerMarcsApp" /> -->
+      <echo>Copying SVN code to build directory</echo>
+      <copy todir=".">
+        <fileset dir="../../" excludes="**/ant/**" />
+      </copy>
+    </target>
+
+    <target name="zip" depends="delete_permarcsapp">
+      <echo>Creating PerMarcs WAR file</echo>
+      <!-- <tar destfile="./PerMarcsApp/permarcsui.war" compression="none" basedir="../../../" excludes="**build_permarcsui_ear.xml** , **build_permarcsui_ear.xml**, **ant/**" /> -->
+      <zip destfile="./permarcsui.war" compress="no" basedir="../../../" excludes="**build_PerMarcApp.xml**, **ant/**" /> 
+
+      <mkdir dir="./adf/META-INF" />
+      <copy todir="./adf/META-INF">
+        <fileset dir="/usr/tmp/permarcs_app_ear_file/adf/META-INF/" />
+      </copy>
+
+      <mkdir dir="./lib" />
+      <copy todir="./lib">
+        <fileset dir="/usr/tmp/permarcs_app_ear_file/lib/" />
+      </copy>
+
+      <mkdir dir="./META-INF" />
+      <copy todir="./META-INF">
+        <fileset dir="/usr/tmp/permarcs_app_ear_file/META-INF/" />
+      </copy>
+      
+      <echo>Creating PerMarcs EAR file</echo>
+      <!-- <tar destfile="./PerMarcsApp.ear" compression="none" basedir="." excludes="**./PerMarcsApp.ear**"/> -->
+      <zip destfile="./PerMarcsApp.ear" compress="no" basedir="." excludes="**./PerMarcsApp.ear**, **build_PerMarcsApp.xml**"/>
+    </target>
+
+</project>
