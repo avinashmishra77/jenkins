@@ -12,7 +12,7 @@ $ docker run -p 8080:8080 -p 50000:50000 --network=InfraNET --name jenkins -v $H
 When you first start the jenkins container it will generate the jenkis admin password. Use that to login to Jenkins (localhost:8080).
 
 ### Note
-1. I have mounted a host directory ($HOME/jenkins/jenkins_data).
+1. I have mounted a host directory ($HOME/jenkins/jenkins_data) into the container. 
 2. I am using a custom network called, InfraNET. This network was created as part of the Oracle 12c Fusion Middleware setup, which contains an Oracle 12.2 database, Oracle FMW 12c Admin and Managed Server containers as well. Making it part of the same network enables easy communication between the containers by just using the container name. 
 
 
